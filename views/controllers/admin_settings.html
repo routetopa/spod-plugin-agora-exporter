@@ -1,0 +1,80 @@
+<style>
+    .ow_ic_delete {
+        width:16px;
+        height:16px;
+        display:block;
+        margin:0 auto;
+        background-repeat:no-repeat;
+        background-position: 50% 50%;
+    }
+
+    .ow_canvas {
+        margin: 0 auto;
+        width: 1200px;
+        word-wrap: break-word;
+    }
+
+</style>
+
+<h4>ROOMs AVAILABLE</h4>
+<table class="ow_table_1 ow_automargin">
+    <thead>
+    <tr class="ow_alt1">
+        <th class="ow_value"></th>
+        <th class="ow_value">SUBJECT</th>
+        <th class="ow_value">BODY</th>
+        <th class="ow_value"># COMMENTS</th>
+        <th class="ow_value"># OPEN DATA</th>
+        <th class="ow_value">CREATED</th>
+        <th class="ow_value">SNAPSHOT(s)</th>
+    </tr>
+    </thead>
+    {foreach from=$publicRoom item=ti name=tn key=id}
+    <tr class="{cycle values='ow_alt1,ow_alt2'} {if $smarty.foreach.tn.last}ow_tr_last{/if} {if $smarty.foreach.tn.first}ow_tr_first{/if}">
+        <td><a href="{$exportUrl}?id={$ti->id}" onclick="return confirm('{text key="base+are_you_sure"}');">TAKE SNAPSHOOT</a></td>
+        <td>{$ti->subject}</td>
+        <td>{$ti->body}</td>
+        <td>{$ti->comments}</td>
+        <td>{$ti->opendata}</td>
+        <td>{$ti->timestamp}</td>
+        <td>
+            {if !empty($ti->snapshots)}
+                {foreach from=$ti->snapshots item=sn}
+                    <a href="{$showUrl}?id={$sn->id}">
+                        {$sn->timestamp} (#comments: {$sn->comments}, #opendata: {$sn->opendata})
+                    </a> <br/>
+                {/foreach}
+            {/if}
+        </td>
+    </tr>
+    {/foreach}
+</table>
+
+
+<h4>ROOMs DELETED</h4>
+<table class="ow_table_1 ow_automargin">
+    <thead>
+    <tr class="ow_alt1">
+        <th class="ow_value">SUBJECT</th>
+        <th class="ow_value">BODY</th>
+        <th class="ow_value">SNAPSHOT(s)</th>
+    </tr>
+    </thead>
+    {foreach from=$snapshoots item=sn }
+    <tr>
+        <td>
+            {$sn.0->subject}
+        </td>
+        <td>
+            {$sn.0->body}
+        </td>
+        <td>
+        {foreach from=$sn item=sns}
+            <a href="{$showUrl}?id={$sns->id}">
+                {$sns->timestamp} (#comments: {$sns->comments}, #opendata: {$sns->opendata})
+            </a> <br/>
+        {/foreach}
+        </td>
+    </tr>
+    {/foreach}
+</table>
