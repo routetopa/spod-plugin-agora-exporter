@@ -28,15 +28,21 @@ class SPODAGORAEXPORTER_BOL_Service
     {
     }
 
-    public function takeSnapshot($roomId, $htmlCode, $subject, $body, $comments, $opendata)
+    public function takeSnapshot($roomId, $htmlCode, $commentsGraph, 
+                                 $dataletsGraph, $usersGraph, $completeGraph,
+                                 $subject, $body, $comments, $opendata)
     {
         $snapshot = new SPODAGORAEXPORTER_BOL_Snapshot();
-        $snapshot->roomId   = $roomId;
-        $snapshot->htmlcode = $htmlCode;
-        $snapshot->subject  = $subject;
-        $snapshot->body     = $body;
-        $snapshot->comments = $comments;
-        $snapshot->opendata = $opendata;
+        $snapshot->roomId        = $roomId;
+        $snapshot->htmlcode      = $htmlCode;
+        $snapshot->commentsGraph = $commentsGraph;
+        $snapshot->dataletsGraph = $dataletsGraph;
+        $snapshot->usersGraph    = $usersGraph;
+        $snapshot->completeGraph = $completeGraph;
+        $snapshot->subject       = $subject;
+        $snapshot->body          = $body;
+        $snapshot->comments      = $comments;
+        $snapshot->opendata      = $opendata;
 
         SPODAGORAEXPORTER_BOL_SnapshotDao::getInstance()->save($snapshot);
     }

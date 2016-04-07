@@ -47,6 +47,6 @@ class SPODAGORAEXPORTER_BOL_SnapshotDao extends OW_BaseDao
      */
     public function getTableName()
     {
-        return OW_DB_PREFIX . 'ode_public_room_snapshot';
+        return OW_DB_PREFIX . 'spodagoraexporter_snapshot';
     }
 }

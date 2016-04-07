@@ -44,10 +44,14 @@ class SPODAGORAEXPORTER_CTRL_Admin extends ADMIN_CTRL_Abstract
 
         $options  = array('http' => array('user_agent' => 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'));
         $context  = stream_context_create($options);
-        $htmlCode = file_get_contents('http://localhost/public-room/' . $roomId, false, $context);
+        $htmlCode = file_get_contents('http://localhost/public-room/' . $roomId . "?comments_pagination=false", false, $context);
         $room = SPODPUBLIC_BOL_Service::getInstance()->getPublicRoomById($roomId);
         SPODAGORAEXPORTER_BOL_Service::getInstance()->takeSnapshot($roomId,
                                                                    $htmlCode,
+            json_encode(SPODPUBLIC_CLASS_Graph::getInstance()->getGraph($roomId, "comments")),
+            json_encode(SPODPUBLIC_CLASS_Graph::getInstance()->getGraph($roomId, "datalets")),
+            json_encode(SPODPUBLIC_CLASS_Graph::getInstance()->getGraph($roomId, "users")),
+            json_encode(SPODPUBLIC_CLASS_Graph::getInstance()->getGraph($roomId, "complete")),
                                                                    $room->subject,
                                                                    $room->body,
                                                                    $room->comments,
@@ -60,6 +64,17 @@ class SPODAGORAEXPORTER_CTRL_Admin extends ADMIN_CTRL_Abstract
     {
         $snapshootId = $_REQUEST["id"];
         $snapshoot = SPODAGORAEXPORTER_BOL_Service::getInstance()->getSnapshotById($snapshootId);
-        $this->assign('snapshoot', $snapshoot);
+
+        //Init JS CONSTANTS
+        $js = UTIL_JsGenerator::composeJsString('
+                AGORAEXPORTER.completeGraph = {$complete_graph}
+            ', array(
+            'complete_graph' => $snapshoot->completeGraph
+        ));
+
+        OW::getDocument()->addOnloadScript($js);
+        OW::getDocument()->addOnloadScript("AGORAEXPORTER.init()");
+
+        OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('spodagoraexporter')->getStaticJsUrl() . 'agoraexporter.js', 'text/javascript');
     }
 }

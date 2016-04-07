@@ -1,9 +1,13 @@
 <?php
 
-$sql = 'CREATE TABLE IF NOT EXISTS `' . OW_DB_PREFIX . 'ode_public_room_snapshot` (
+$sql = 'CREATE TABLE IF NOT EXISTS `' . OW_DB_PREFIX . 'spodagoraexporter_snapshot` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `roomId` int(11) NOT NULL,
   `htmlcode` text,
+  `commentsGraph` text,
+  `dataletsGraph` text,
+  `usersGraph` text,
+  `completeGraph` text,
   `subject` varchar(255),
   `body` varchar(255),
   `comments` int,
