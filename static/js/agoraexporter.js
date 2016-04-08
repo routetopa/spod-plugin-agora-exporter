@@ -1,26 +1,43 @@
 AGORAEXPORTER = {};
 
 
+AGORAEXPORTER.getPrettyDate = function(timestamp)
+{
+    var date = new Date(timestamp*1000);
+    var monthNames = ["January", "February", "March","April", "May", "June", "July","August", "September", "October","November", "December"];
+    var day = date.getDate();
+    var monthIndex = date.getMonth();
+    var year = date.getFullYear();
+    var hours = date.getHours();
+    var minutes = date.getMinutes();
+    return (day + ' ' + monthNames[monthIndex] + ' ' + year + ' ' + hours + ':' + minutes);
+};
+
 AGORAEXPORTER.init = function()
 {
     var room = JSON.parse(AGORAEXPORTER.completeGraph);
+    var elem = $("#container");
+    var roomTopic = room.nodes.splice(0,1);
+
+    elem.append("<h2>"+roomTopic[0].content+"</h2>");
+    elem.append("<ol class='rounded-list' id='root_"+roomTopic[0].originalId+"'></ol>");
+    elem = $("#root_" + roomTopic[0].originalId);
+
     room.nodes.forEach(function(node)
     {
-        var elem = $("#container");
-        console.log(node);
-
-        if(node.father == null)
+        elem = $("#root_" + node.father.originalId);
+        if(elem.length == 0)
         {
-            elem.append("<ul id='root_"+node.originalId+"'></ul>");
+            elem = $("#node_" + node.father.originalId);
+            elem.append("<ol id='root_" + node.father.originalId + "'></ol>");
+            elem = $("#root_" + node.father.originalId);
         }
         else
         {
-            elem = $("#node_" + node.father.originalId);
-            elem.append("<ul id='root_"+node.originalId+"'></ul>");
+            elem = $(elem[0]);
         }
 
-        elem = $("#root_" + node.originalId);
-        elem.append("<li id='node_"+node.originalId+"'>"+ node.name + " : " + node.content + " -> " + new Date(node.createStamp*1000) + "</li>");
+        elem.append("<li id='node_"+node.originalId+"'><a>"+ node.name + " : <strong>" + node.content + "</strong> -> " + AGORAEXPORTER.getPrettyDate(node.createStamp) + "</a></li>");
 
         //DATALET
         if(typeof node.datalet != "undefined")
