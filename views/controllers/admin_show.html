@@ -1,5 +1,6 @@
 {style}
-div#container ol {
+div#container ol
+{
     counter-reset: li; /* Initiate a counter */
     list-style: none; /* Remove default numbering */
     font: 15px 'trebuchet MS', 'lucida sans';
@@ -8,11 +9,13 @@ div#container ol {
     text-shadow: 0 1px 0 rgba(255,255,255,.5);
 }
 
-div#container ol ol {
+div#container ol ol
+{
     margin: 0 0 0 2em; /* Add some left margin for inner lists */
 }
 
-.rounded-list li > a{
+.rounded-list li > a
+{
     position: relative;
     display: block;
     padding: .4em .4em .4em 2em;
@@ -24,11 +27,13 @@ div#container ol ol {
     transition: all .3s ease-out;
 }
 
-.rounded-list li > a:hover{
+.rounded-list li > a:hover
+{
     background: #eee;
 }
 
-.rounded-list a:before{
+.rounded-list li > a:before
+{
     content: counter(li);
     counter-increment: li;
     position: absolute;
@@ -45,7 +50,6 @@ div#container ol ol {
     border-radius: 2em;
     transition: all .3s ease-out;
 }
-
 {/style}
 
 <div id="container">
