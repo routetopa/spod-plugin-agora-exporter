@@ -54,10 +54,10 @@ class SPODAGORAEXPORTER_CTRL_Admin extends ADMIN_CTRL_Abstract
         $room = SPODPUBLIC_BOL_Service::getInstance()->getPublicRoomById($roomId);
         SPODAGORAEXPORTER_BOL_Service::getInstance()->takeSnapshot($roomId,
                                                                    $htmlCode,
-            json_encode(SPODPUBLIC_CLASS_Graph::getInstance()->getGraph($roomId, "comments")),
-            json_encode(SPODPUBLIC_CLASS_Graph::getInstance()->getGraph($roomId, "datalets")),
-            json_encode(SPODPUBLIC_CLASS_Graph::getInstance()->getGraph($roomId, "users")),
-            json_encode(SPODPUBLIC_CLASS_Graph::getInstance()->getGraph($roomId, "complete")),
+            $this->sanitizeInput(json_encode(SPODPUBLIC_CLASS_Graph::getInstance()->getGraph($roomId, "comments"))),
+            $this->sanitizeInput(json_encode(SPODPUBLIC_CLASS_Graph::getInstance()->getGraph($roomId, "datalets"))),
+            $this->sanitizeInput(json_encode(SPODPUBLIC_CLASS_Graph::getInstance()->getGraph($roomId, "users"))),
+            $this->sanitizeInput(json_encode(SPODPUBLIC_CLASS_Graph::getInstance()->getGraph($roomId, "complete"))),
                                                                    $room->subject,
                                                                    $room->body,
                                                                    $room->comments,
@@ -100,5 +100,11 @@ class SPODAGORAEXPORTER_CTRL_Admin extends ADMIN_CTRL_Abstract
         header('Content-type: application/json');
         echo $snapshot->completeGraph;
         die();
+    }
+
+
+    protected function sanitizeInput($str)
+    {
+        return str_replace("'", "&#39;", !empty($str) ? $str : "");
     }
 }
