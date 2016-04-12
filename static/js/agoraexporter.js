@@ -37,7 +37,8 @@ AGORAEXPORTER.init = function()
             elem = $(elem[0]);
         }
 
-        elem.append("<li id='node_"+node.originalId+"'><a>"+ node.name + " : <strong>" + node.content + "</strong> -> " + AGORAEXPORTER.getPrettyDate(node.createStamp) + "</a></li>");
+        var sentimentClass = node.sentiment != "null" ? "sentiment_" + node.sentiment : "";
+        elem.append("<li id='node_"+node.originalId+"'><a class='"+sentimentClass+"'>"+ node.name + " : <strong>" + node.content + "</strong> -> " + AGORAEXPORTER.getPrettyDate(node.createStamp) + "</a></li>");
 
         //DATALET
         if(typeof node.datalet != "undefined")

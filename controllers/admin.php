@@ -31,11 +31,17 @@ class SPODAGORAEXPORTER_CTRL_Admin extends ADMIN_CTRL_Abstract
         $this->assign('publicRoom', $agora);
         $this->assign('snapshoots', $groupedSn);
 
-        $deleteUrl = OW::getRouter()->urlFor(__CLASS__, 'export');
-        $this->assign('exportUrl', $deleteUrl);
+        $exportUrl = OW::getRouter()->urlFor(__CLASS__, 'export');
+        $this->assign('exportUrl', $exportUrl);
 
         $showUrl = OW::getRouter()->urlFor(__CLASS__, 'show');
         $this->assign('showUrl', $showUrl);
+
+        $deleteUrl = OW::getRouter()->urlFor(__CLASS__, 'delete');
+        $this->assign('deleteUrl', $deleteUrl);
+
+        $downloadUrl = OW::getRouter()->urlFor(__CLASS__, 'download');
+        $this->assign('downloadUrl', $downloadUrl);
     }
 
     public function export()
@@ -62,19 +68,37 @@ class SPODAGORAEXPORTER_CTRL_Admin extends ADMIN_CTRL_Abstract
 
     public function show()
     {
-        $snapshootId = $_REQUEST["id"];
-        $snapshoot = SPODAGORAEXPORTER_BOL_Service::getInstance()->getSnapshotById($snapshootId);
+        $snapshotId = $_REQUEST["id"];
+        $snapshot = SPODAGORAEXPORTER_BOL_Service::getInstance()->getSnapshotById($snapshotId);
 
         //Init JS CONSTANTS
         $js = UTIL_JsGenerator::composeJsString('
                 AGORAEXPORTER.completeGraph = {$complete_graph}
             ', array(
-            'complete_graph' => $snapshoot->completeGraph
+            'complete_graph' => $snapshot->completeGraph
         ));
 
         OW::getDocument()->addOnloadScript($js);
         OW::getDocument()->addOnloadScript("AGORAEXPORTER.init()");
 
         OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('spodagoraexporter')->getStaticJsUrl() . 'agoraexporter.js', 'text/javascript');
+    }
+
+    public function delete()
+    {
+        $snapshotID = $_REQUEST["id"];
+        SPODAGORAEXPORTER_BOL_Service::getInstance()->deleteSnapshot($snapshotID);
+        $this->redirect(OW::getRouter()->urlForRoute('spodagoraexporter-settings'));
+    }
+
+    public function download()
+    {
+        $snapshotId = $_REQUEST["id"];
+        $snapshot = SPODAGORAEXPORTER_BOL_Service::getInstance()->getSnapshotById($snapshotId);
+
+        header('Content-disposition: attachment; filename=spod_public_room.json');
+        header('Content-type: application/json');
+        echo $snapshot->completeGraph;
+        die();
     }
 }

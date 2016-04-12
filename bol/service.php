@@ -72,6 +72,10 @@ class SPODAGORAEXPORTER_BOL_Service
         {
             return SPODAGORAEXPORTER_BOL_SnapshotDao::getInstance()->findAll();
         }
+    }
 
+    public function deleteSnapshot($roomId)
+    {
+        return SPODAGORAEXPORTER_BOL_SnapshotDao::getInstance()->deleteById($roomId);
     }
 }

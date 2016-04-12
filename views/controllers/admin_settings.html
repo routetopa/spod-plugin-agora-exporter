@@ -31,7 +31,7 @@
     </thead>
     {foreach from=$publicRoom item=ti name=tn key=id}
     <tr class="{cycle values='ow_alt1,ow_alt2'} {if $smarty.foreach.tn.last}ow_tr_last{/if} {if $smarty.foreach.tn.first}ow_tr_first{/if}">
-        <td><a href="{$exportUrl}?id={$ti->id}" onclick="return confirm('{text key="base+are_you_sure"}');">TAKE SNAPSHOOT</a></td>
+        <td><a href="{$exportUrl}?id={$ti->id}">TAKE SNAPSHOOT</a></td>
         <td>{$ti->subject}</td>
         <td>{$ti->body}</td>
         <td>{$ti->comments}</td>
@@ -40,9 +40,10 @@
         <td>
             {if !empty($ti->snapshots)}
                 {foreach from=$ti->snapshots item=sn}
-                    <a href="{$showUrl}?id={$sn->id}">
-                        {$sn->timestamp} (#comments: {$sn->comments}, #opendata: {$sn->opendata})
-                    </a> <br/>
+                    <a href="{$showUrl}?id={$sn->id}">{$sn->timestamp} (#comments: {$sn->comments}, #opendata: {$sn->opendata})</a>
+                    <a href="{$deleteUrl}?id={$sn->id}" onclick="return confirm('{text key="base+are_you_sure"}');">(delete)</a>
+                    <a href="{$downloadUrl}?id={$sn->id}">(download)</a>
+                    <br/>
                 {/foreach}
             {/if}
         </td>
@@ -70,9 +71,10 @@
         </td>
         <td>
         {foreach from=$sn item=sns}
-            <a href="{$showUrl}?id={$sns->id}">
-                {$sns->timestamp} (#comments: {$sns->comments}, #opendata: {$sns->opendata})
-            </a> <br/>
+            <a href="{$showUrl}?id={$sns->id}">{$sns->timestamp} (#comments: {$sns->comments}, #opendata: {$sns->opendata})</a>
+            <a href="{$deleteUrl}?id={$sns->id}" onclick="return confirm('{text key="base+are_you_sure"}');">(delete)</a>
+            <a href="{$downloadUrl}?id={$sns->id}">(download)</a>
+            <br/>
         {/foreach}
         </td>
     </tr>
