@@ -42,7 +42,8 @@
                 {foreach from=$ti->snapshots item=sn}
                     <a href="{$showUrl}?id={$sn->id}">{$sn->timestamp} (#comments: {$sn->comments}, #opendata: {$sn->opendata})</a>
                     <a href="{$deleteUrl}?id={$sn->id}" onclick="return confirm('{text key="base+are_you_sure"}');">(delete)</a>
-                    <a href="{$downloadUrl}?id={$sn->id}">(download)</a>
+                    <a href="{$downloadUrl}?id={$sn->id}">(download as JSON)</a>
+                    <a href="{$downloadAsXLS}?id={$sn->id}">(download as XLS)</a>
                     <br/>
                 {/foreach}
             {/if}
@@ -74,6 +75,7 @@
             <a href="{$showUrl}?id={$sns->id}">{$sns->timestamp} (#comments: {$sns->comments}, #opendata: {$sns->opendata})</a>
             <a href="{$deleteUrl}?id={$sns->id}" onclick="return confirm('{text key="base+are_you_sure"}');">(delete)</a>
             <a href="{$downloadUrl}?id={$sns->id}">(download)</a>
+            <a href="{$downloadAsXLS}?id={$sns->id}">(download as XLS)</a>
             <br/>
         {/foreach}
         </td>

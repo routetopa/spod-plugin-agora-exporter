@@ -42,6 +42,9 @@ class SPODAGORAEXPORTER_CTRL_Admin extends ADMIN_CTRL_Abstract
 
         $downloadUrl = OW::getRouter()->urlFor(__CLASS__, 'download');
         $this->assign('downloadUrl', $downloadUrl);
+
+        $downloadXLSUrl = OW::getRouter()->urlFor(__CLASS__, 'downloadAsXLS');
+        $this->assign('downloadAsXLS', $downloadXLSUrl);
     }
 
     public function export()
@@ -99,6 +102,98 @@ class SPODAGORAEXPORTER_CTRL_Admin extends ADMIN_CTRL_Abstract
         header('Content-disposition: attachment; filename=spod_public_room.json');
         header('Content-type: application/json');
         echo $snapshot->completeGraph;
+        die();
+    }
+    
+    public function downloadAsXLS()
+    {
+        require_once dirname(__FILE__) . '/../libs/PHPExcel-1.8/Classes/PHPExcel.php';
+
+        $snapshotId = $_REQUEST["id"];
+        $snapshot = SPODAGORAEXPORTER_BOL_Service::getInstance()->getSnapshotById($snapshotId);
+
+        $objPHPExcel = new PHPExcel();
+
+
+        $objPHPExcel->getProperties()->setCreator("ROUTETOPA Project")
+            ->setLastModifiedBy("ROUTETOPA Project")
+            ->setTitle("Agora Room Snapshot")
+            ->setSubject("Agora Room Snapshot")
+            ->setDescription("Agora Room Snapshot")
+            ->setKeywords("Agora Room Snapshot")
+            ->setCategory("Agora Room Snapshot");
+
+        //$raw_data = str_replace('\\\\', '\\', $snapshot->completeGraph);
+        $raw_data = $snapshot->completeGraph;
+        $data = json_decode($raw_data);
+
+        foreach ($data->nodes as $row => $node)
+        {
+            $level = 'A';
+
+            if($node->level != null)
+            {
+                switch ($node->level)
+                {
+                    case 1 : $level = 'B'; break;
+                    case 2 : $level = 'C'; break;
+                    case 3 : $level = 'D'; break;
+                }
+            }
+
+            $cell = $level . ($row+1);
+            $date = isset($node->createStamp) ? date("d-F-Y , G:i:s", $node->createStamp) : "";
+            $objPHPExcel->setActiveSheetIndex(0)->setCellValue($cell, $node->name . " : " . $node->content . " (".$date.")");
+
+            $datalet_html = "";
+
+            /*if(isset($node->datalet))
+            {
+
+                $datalet_html = '<script type="text/javascript" src="https://cdn.jsdelivr.net/webcomponentsjs/0.7.16/webcomponents-lite.min.js"></script>
+                          <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>';
+
+                $datalet_html .= '<link rel="import" href="http://deep.routetopa.eu/COMPONENTS/datalets/' . $node->datalet->component . '/' . $node->datalet->component . '.html" />';
+
+                $node->datalet->params = str_replace(array('"[', ']"'), array('[', ']'), $node->datalet->params);
+                $datalet_params = json_decode($node->datalet->params);
+
+                $datalet_html .= '<' . $node->datalet->component . ' ';
+                $datalet_html .= "fields='[" . $node->datalet->fields . "]' ";
+                foreach ($datalet_params as $key => $value)
+                {
+                    if(!is_array($value))
+                    {
+                        $datalet_html .= " " . $key . "='" . $value . "' ";
+                    }
+                    else
+                    {
+                        $datalet_html .= " " . $key . "='[";
+                        foreach ($value as $key => $v)
+                        {
+                            $datalet_html .= '{"field":"' . $v->field . '",' . '"operation":"' . $v->operation . '"}' . ($key < count($value)-1 ? ',' : '');
+                        }
+                        $datalet_html .= "]'";
+                    }
+                }
+
+                $datalet_html .= '></' . $node->datalet->component . '>';
+            }*/
+
+        }
+
+        // Set active sheet index to the first sheet, so Excel opens this as the first sheet
+        $objPHPExcel->setActiveSheetIndex(0);
+
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        //$objWriter->save(str_replace('.php', '.xlsx', __FILE__));
+
+        // We'll be outputting an excel file
+        header('Content-type: application/vnd.ms-excel');
+        // It will be called file.xlsx
+        header('Content-Disposition: attachment; filename="public_room.xlsx"');
+        // Write file to the browser
+        $objWriter->save('php://output');
         die();
     }
 
