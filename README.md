@@ -8,7 +8,7 @@ download a JSON or XLS rapresentation of the room.
 
 Installation guide
 
-To install Agora plugin:
+To install Agora Exporter plugin:
 
 Clone this project by following the github instruction on SPOD_INSTALLATION_DIR/ow_plugins
 Install the plugin on SPOD by admin plugins panel
