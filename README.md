@@ -1,4 +1,4 @@
-###About this plugin
+###Agora Exporter
 
 Agora Exporter is a plugin that allow the SPOD platform Administrator to take a snapshot of each Agora room.
 Once the Administrator access the  configuration page of the plugin a list of all Agora rooms will be showed (with information about room name, body, 
