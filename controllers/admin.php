@@ -9,7 +9,7 @@ class SPODAGORAEXPORTER_CTRL_Admin extends ADMIN_CTRL_Abstract
 
         $roomsId = [];
         $groupedSn = [];
-        $agora = SPODPUBLIC_BOL_Service::getInstance()->getAgora();
+        $agora = SPODAGORA_BOL_Service::getInstance()->getAgora();
 
         foreach ($agora as $room)
         {
@@ -53,18 +53,17 @@ class SPODAGORAEXPORTER_CTRL_Admin extends ADMIN_CTRL_Abstract
 
         $options  = array('http' => array('user_agent' => 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'));
         $context  = stream_context_create($options);
-        $htmlCode = file_get_contents('http://localhost/public-room/' . $roomId . "?comments_pagination=false", false, $context);
-        $room = SPODPUBLIC_BOL_Service::getInstance()->getPublicRoomById($roomId);
+        $htmlCode = file_get_contents(OW_URL_HOME.'/agora/' . $roomId, false, $context);
+
+
+        $room = SPODAGORA_BOL_Service::getInstance()->getAgoraById($roomId);
         SPODAGORAEXPORTER_BOL_Service::getInstance()->takeSnapshot($roomId,
                                                                    $htmlCode,
-            $this->sanitizeInput(json_encode(SPODPUBLIC_CLASS_Graph::getInstance()->getGraph($roomId, "comments"))),
-            $this->sanitizeInput(json_encode(SPODPUBLIC_CLASS_Graph::getInstance()->getGraph($roomId, "datalets"))),
-            $this->sanitizeInput(json_encode(SPODPUBLIC_CLASS_Graph::getInstance()->getGraph($roomId, "users"))),
-            $this->sanitizeInput(json_encode(SPODPUBLIC_CLASS_Graph::getInstance()->getGraph($roomId, "complete"))),
+                                                                   $room->datalet_graph,
                                                                    $room->subject,
                                                                    $room->body,
-                                                                   $room->comments,
-                                                                   $room->opendata);
+                                                                   $room->opendata,
+                                                                   $room->comments);
 
         $this->redirect(OW::getRouter()->urlForRoute('spodagoraexporter-settings'));
     }
@@ -76,9 +75,13 @@ class SPODAGORAEXPORTER_CTRL_Admin extends ADMIN_CTRL_Abstract
 
         //Init JS CONSTANTS
         $js = UTIL_JsGenerator::composeJsString('
-                AGORAEXPORTER.completeGraph = {$complete_graph}
+                AGORAEXPORTER.commentsGraph = {$commentsGraph}
+                AGORAEXPORTER.body = {$body}
+                AGORAEXPORTER.subject = {$subject}
             ', array(
-            'complete_graph' => $snapshot->completeGraph
+            'commentsGraph' => $snapshot->commentsGraph,
+            'body' => $snapshot->body,
+            'subject' => $snapshot->subject
         ));
 
         OW::getDocument()->addOnloadScript($js);
@@ -123,62 +126,26 @@ class SPODAGORAEXPORTER_CTRL_Admin extends ADMIN_CTRL_Abstract
             ->setKeywords("Agora Room Snapshot")
             ->setCategory("Agora Room Snapshot");
 
-        //$raw_data = str_replace('\\\\', '\\', $snapshot->completeGraph);
-        $raw_data = $snapshot->completeGraph;
+        $raw_data = $snapshot->commentsGraph;
         $data = json_decode($raw_data);
+        $row = 0;
 
-        foreach ($data->nodes as $row => $node)
+        foreach ($data as $node)
         {
             $level = 'A';
-
-            if($node->level != null)
-            {
-                switch ($node->level)
-                {
-                    case 1 : $level = 'B'; break;
-                    case 2 : $level = 'C'; break;
-                    case 3 : $level = 'D'; break;
-                }
-            }
-
             $cell = $level . ($row+1);
-            $date = isset($node->createStamp) ? date("d-F-Y , G:i:s", $node->createStamp) : "";
-            $objPHPExcel->setActiveSheetIndex(0)->setCellValue($cell, $node->name . " : " . $node->content . " (".$date.")");
+            $date = isset($node->timestamp) ? $node->timestamp : "";
+            $objPHPExcel->setActiveSheetIndex(0)->setCellValue($cell, $node->username . " : " . $node->comment . " (".$date.")");
+            $row++;
 
-            $datalet_html = "";
-
-            /*if(isset($node->datalet))
+            foreach ($node->children as $child)
             {
-
-                $datalet_html = '<script type="text/javascript" src="https://cdn.jsdelivr.net/webcomponentsjs/0.7.16/webcomponents-lite.min.js"></script>
-                          <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>';
-
-                $datalet_html .= '<link rel="import" href="http://deep.routetopa.eu/COMPONENTS/datalets/' . $node->datalet->component . '/' . $node->datalet->component . '.html" />';
-
-                $node->datalet->params = str_replace(array('"[', ']"'), array('[', ']'), $node->datalet->params);
-                $datalet_params = json_decode($node->datalet->params);
-
-                $datalet_html .= '<' . $node->datalet->component . ' ';
-                $datalet_html .= "fields='[" . $node->datalet->fields . "]' ";
-                foreach ($datalet_params as $key => $value)
-                {
-                    if(!is_array($value))
-                    {
-                        $datalet_html .= " " . $key . "='" . $value . "' ";
-                    }
-                    else
-                    {
-                        $datalet_html .= " " . $key . "='[";
-                        foreach ($value as $key => $v)
-                        {
-                            $datalet_html .= '{"field":"' . $v->field . '",' . '"operation":"' . $v->operation . '"}' . ($key < count($value)-1 ? ',' : '');
-                        }
-                        $datalet_html .= "]'";
-                    }
-                }
-
-                $datalet_html .= '></' . $node->datalet->component . '>';
-            }*/
+                $level = 'B';
+                $cell = $level . ($row+1);
+                $date = isset($child->timestamp) ? $child->timestamp : "";
+                $objPHPExcel->setActiveSheetIndex(0)->setCellValue($cell, $child->username . " : " . $child->comment . " (".$date.")");
+                $row++;
+            }
 
         }
 

@@ -15,44 +15,56 @@ AGORAEXPORTER.getPrettyDate = function(timestamp)
 
 AGORAEXPORTER.init = function()
 {
-    var room = JSON.parse(AGORAEXPORTER.completeGraph);
+    var room = JSON.parse(AGORAEXPORTER.commentsGraph);
     var elem = $("#container");
-    var roomTopic = room.nodes.splice(0,1);
+    var roomTopic = AGORAEXPORTER.body;
 
-    elem.append("<h2>"+roomTopic[0].content+"</h2>");
-    elem.append("<ol class='rounded-list' id='root_"+roomTopic[0].originalId+"'></ol>");
-    elem = $("#root_" + roomTopic[0].originalId);
+    elem.append("<h2>"+roomTopic+"</h2>");
+    elem.append("<ol class='rounded-list' id='root'></ol>");
+    elem = $("#root");
 
-    room.nodes.forEach(function(node)
+    room.forEach(function(node)
     {
-        elem = $("#root_" + node.father.originalId);
-        if(elem.length == 0)
-        {
-            elem = $("#node_" + node.father.originalId);
-            elem.append("<ol id='root_" + node.father.originalId + "'></ol>");
-            elem = $("#root_" + node.father.originalId);
-        }
-        else
-        {
-            elem = $(elem[0]);
-        }
-
         var sentimentClass = node.sentiment != "null" ? "sentiment_" + node.sentiment : "";
-        elem.append("<li id='node_"+node.originalId+"'><a class='"+sentimentClass+"'>"+ node.name + " : <strong>" + node.content + "</strong> -> " + AGORAEXPORTER.getPrettyDate(node.createStamp) + "</a></li>");
+        elem.append("<li>" +
+            "<a class='"+sentimentClass+"'>"+ node.username + " : <strong>" + node.comment + "</strong> -> " + node.timestamp + "</a>" +
+            "<div id='datalet_" + node.id + "'></div>" +
+            "<ol id='root_" + node.id + "'></ol>" +
+            "</li>");
+        var n_e = $("#root_"+node.id);
+
+        node.children.forEach(function(children)
+        {
+            n_e.append("<li id=''>" +
+                "<a class='"+sentimentClass+"'>"+ children.username + " : <strong>" + children.comment + "</strong> -> " + children.timestamp + "</a>" +
+                "<div id='datalet_" + children.id + "'></div>" +
+                "</li>");
+
+            //DATALET
+            if(children.component)
+            {
+                var params = JSON.parse(children.params);
+                var fields = children.fields.split('","');
+
+                for(var i=0; i<fields.length; i++)
+                    fields[i] = fields[i].replace('"', '');
+
+                ODE.loadDatalet(children.component, params, fields, '', "datalet_" + children.id);
+            }
+
+        });
+
 
         //DATALET
-        if(typeof node.datalet != "undefined")
+        if(node.component)
         {
-            elem = $("#node_" + node.originalId);
-            elem.append("<div id='datalet_"+node.originalId+"'></div>");
-
-            var params = JSON.parse(node.datalet.params);
-            var fields = node.datalet.fields.split('","');
+            var params = JSON.parse(node.params);
+            var fields = node.fields.split('","');
 
             for(var i=0; i<fields.length; i++)
                 fields[i] = fields[i].replace('"', '');
 
-            ODE.loadDatalet(node.datalet.component, params, fields, node.datalet.data, "datalet_" + node.originalId);
+            ODE.loadDatalet(node.component, params, fields, '', "datalet_" + node.id);
         }
     });
 };

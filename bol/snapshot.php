@@ -4,10 +4,8 @@ class SPODAGORAEXPORTER_BOL_Snapshot extends OW_Entity
 {
     public $roomId;
     public $htmlcode;
-    public $commentsGraph;
     public $dataletsGraph;
-    public $usersGraph;
-    public $completeGraph;
+    public $commentsGraph;
     public $subject;
     public $body;
     public $comments;

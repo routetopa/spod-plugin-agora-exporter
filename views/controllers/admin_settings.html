@@ -42,7 +42,7 @@
                 {foreach from=$ti->snapshots item=sn}
                     <a href="{$showUrl}?id={$sn->id}">{$sn->timestamp} (#comments: {$sn->comments}, #opendata: {$sn->opendata})</a>
                     <a href="{$deleteUrl}?id={$sn->id}" onclick="return confirm('{text key="base+are_you_sure"}');">(delete)</a>
-                    <a href="{$downloadUrl}?id={$sn->id}">(download as JSON)</a>
+                    <!--<a href="{$downloadUrl}?id={$sn->id}">(download as JSON)</a>-->
                     <a href="{$downloadAsXLS}?id={$sn->id}">(download as XLS)</a>
                     <br/>
                 {/foreach}
